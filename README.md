@@ -88,7 +88,7 @@ Demo_JWT_MQTT/
 │   └── log/                      # Mosquitto log folder (empty initially)
 ├── publisher.py                  # Python script to create and send the JWT secured message
 ├── subscriber.py                 # Python script to receive and verify the JWT
-├── man_in_the_middle.py          # Python script to simulate the MITM attack
+├── attacker.py          # Python script to simulate the MITM attack
 └── README.md                     # This file
 ```
 
@@ -150,95 +150,87 @@ In Phase 1, we demonstrate a scenario where the publisher creates a JWT-protecte
   - Uses the PyJWT library to generate a JWT by encoding the payload with a secret key.
   - Embeds the JWT in a JSON message and publishes it to a topic (e.g., `demo/jwt`).
 
-**Example Snippet:**
+**In the publisher, the JWT is created with the following function:**
 
 ```python
-import time
-import json
-import jwt  # PyJWT library
-import paho.mqtt.client as mqtt
-
-JWT_SECRET = "your_very_secret_key"
-JWT_ALGORITHM = "HS256"
-BROKER = "localhost"
-PORT = 1883
-USERNAME = "testuser"
-PASSWORD = "testpass"
-TOPIC = "demo/jwt"
-
 def create_jwt(payload):
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
-
-payload_data = {
-    "message": "Hello from MQTT with JWT!",
-    "timestamp": int(time.time())
-}
-
-token = create_jwt(payload_data)
-mqtt_payload = {
-    "jwt": token,
-    "additional_info": "This message is secured by JWT."
-}
-
-client = mqtt.Client(protocol=mqtt.MQTTv311)
-client.username_pw_set(USERNAME, PASSWORD)
-client.connect(BROKER, PORT)
-client.publish(TOPIC, json.dumps(mqtt_payload))
-print("Published message:", mqtt_payload)
-client.disconnect()
 ```
 
-### Subscriber Code: Verifying the JWT
+**Explanation of Each Component:**
 
+- **`payload`:**  
+  This is a Python dictionary containing the data or claims you wish to transmit. For example, it might include a message, a timestamp, or other metadata relevant to the message.
+
+- **`JWT_SECRET`:**  
+  This is a secret key (a string) that both the publisher and the subscriber share. It is used to sign the JWT. The security of the JWT signature depends on the secrecy of this key. If an attacker doesn't have this key, they cannot create a valid signature.
+
+- **`algorithm=JWT_ALGORITHM`:**  
+  This parameter specifies the signing algorithm (e.g., `"HS256"` for HMAC using SHA-256). The algorithm determines how the header and payload are hashed and combined with the secret to generate the signature. Both the publisher and subscriber must use the same algorithm for the JWT verification to succeed.
+
+- **`jwt.encode(...)`:**  
+  This function takes the payload, the secret key, and the algorithm as inputs and outputs the JWT as a compact string in the format `header.payload.signature`, where each part is Base64 URL-safe encoded.
+
+---
+
+### Subscriber: Verifying the JWT
 - The **subscriber**:
   - Subscribes to the topic.
   - When a message is received, it extracts the JWT from the JSON message.
   - It calls `jwt.decode()` to verify the token using the shared secret.
   - If verification is successful, the message is accepted; if not, it is rejected.
 
-**Example Snippet:**
+**In the subscriber, the verification and decoding of the JWT is done with this code snippet:**
 
 ```python
-import json
-import jwt  # PyJWT library
-import paho.mqtt.client as mqtt
-
-JWT_SECRET = "your_very_secret_key"
-JWT_ALGORITHM = "HS256"
-BROKER = "localhost"
-PORT = 1883
-USERNAME = "testuser"
-PASSWORD = "testpass"
-TOPIC = "demo/jwt"
-
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("Subscriber connected!")
-        client.subscribe(TOPIC)
-    else:
-        print("Connection failed, code:", rc)
-
-def on_message(client, userdata, msg):
-    try:
-        message = json.loads(msg.payload.decode())
-        token = message.get("jwt")
-        if token:
-            decoded_payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
-            print("JWT verified successfully. Data:", decoded_payload)
-        else:
-            print("No JWT in the message.")
-    except jwt.InvalidTokenError as e:
-        print("JWT verification failed:", e)
-
-client = mqtt.Client(protocol=mqtt.MQTTv311)
-client.username_pw_set(USERNAME, PASSWORD)
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect(BROKER, PORT)
-client.loop_forever()
+if token:
+    decoded_payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    print("JWT verified successfully. Data:", decoded_payload)
 ```
 
-*When everything works correctly in Phase 1, the subscriber receives the message, verifies the JWT, and displays the data.*
+**Explanation of Each Component:**
+
+- **`if token:`**  
+  This checks if the received message contains a JWT. If the token is present, the code proceeds with verification.
+
+- **`jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])`:**  
+  - **`token`:**  
+    The JWT received in the message.
+  - **`JWT_SECRET`:**  
+    The same secret key used in the publisher. The subscriber uses this key to verify the token’s signature.
+  - **`algorithms=[JWT_ALGORITHM]`:**  
+    This parameter tells the `jwt.decode` function which algorithm(s) to expect. It verifies that the token's signature was generated using one of these algorithms. Both sides must use the same algorithm (for example, `"HS256"`) for successful verification.
+  - **Result:**  
+    If the signature matches, the function returns the decoded payload (the original claims/data). If the token was tampered with or invalid, a `jwt.InvalidTokenError` is raised, indicating verification failure.
+
+---
+
+### How to Run the Project
+
+1. **Pull the Repository:**  
+   Clone or pull the repository to your local machine so you have access to the source code.
+
+2. **Navigate to the Project Directory:**
+
+   ```cmd
+   cd path\to\Demo_JWT_MQTT
+   ```
+
+3. **Run the Subscriber:**
+
+   ```cmd
+   py subscriber.py
+   ```
+
+4. **Run the Publisher:**
+
+   In another terminal window (or after stopping the subscriber if needed), run:
+
+   ```cmd
+   py publisher.py
+   ```
+
+These steps will start the publisher and subscriber, demonstrating how a JWT is created, embedded in a message, and later verified by the subscriber to ensure the data has not been tampered with.
 
 ---
 
@@ -247,110 +239,168 @@ client.loop_forever()
 In Phase 2, we simulate a man-in-the-middle (MITM) attack where an attacker intercepts the message, alters the JWT to create a new token (or remove it), and repackages the message. This scenario demonstrates that when the subscriber attempts to verify the tampered JWT, the verification fails, indicating that the data has been altered.
 
 ### Attacker Code: Tampering with the JWT
+In this phase, we simulate an attack scenario where an attacker intercepts the published message, modifies the JWT token, and repackages the message. When the subscriber, expecting a valid JWT, attempts to verify the tampered token, the verification fails—indicating that the data has been altered.  
 
 - The **attacker** script acts as an intermediary:
   - It subscribes to the original topic (`demo/jwt`).
   - On receiving a message, it extracts the JWT and modifies it (e.g., changing one character in the token).
   - It republishes the modified message to a different topic (`demo/jwt_attacked`).
 
-**Example Snippet:**
+### Attacker Code: Tampering with the JWT
+
+The attacker script acts as an intermediary. One of the key functions in this script is for tampering with the JWT. In our repository, we have the following function:
 
 ```python
-import json
-import paho.mqtt.client as mqtt
-
-BROKER = "localhost"
-PORT = 1883
-USERNAME = "testuser"
-PASSWORD = "testpass"
-INPUT_TOPIC = "demo/jwt"
-OUTPUT_TOPIC = "demo/jwt_attacked"
-
 def tamper_jwt(token):
     if not token or len(token) < 1:
         return token
     new_last = 'X' if token[-1] != 'X' else 'Y'
     return token[:-1] + new_last
-
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        print("MITM attacker connected!")
-        client.subscribe(INPUT_TOPIC)
-    else:
-        print("Connection failed:", rc)
-
-def on_message(client, userdata, msg):
-    try:
-        data = json.loads(msg.payload.decode())
-    except Exception as e:
-        print("Error parsing message:", e)
-        return
-    original_token = data.get("jwt")
-    if original_token:
-        tampered_token = tamper_jwt(original_token)
-        print("Original JWT:", original_token)
-        print("Tampered JWT:", tampered_token)
-        data["jwt"] = tampered_token
-    new_payload = json.dumps(data)
-    client.publish(OUTPUT_TOPIC, new_payload)
-    print("Republished tampered message to", OUTPUT_TOPIC)
-
-client = mqtt.Client("MITMAttacker", protocol=mqtt.MQTTv311)
-client.username_pw_set(USERNAME, PASSWORD)
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect(BROKER, PORT)
-client.loop_forever()
 ```
 
-### How the Subscriber Detects Tampering
+**Explanation:**
 
-The subscriber (if modified to listen to the `demo/jwt_attacked` topic) will try to verify the JWT from the tampered message:
+- **Check for a Valid Token:**  
+  The function starts by checking if the provided token is empty or too short. If it is, the function returns the token unchanged.
 
-1. **Extraction:**  
-   The subscriber extracts the JWT field from the received message.
-2. **Recalculation:**  
-   It uses the shared secret to recalculate the signature on the header and payload of the JWT.
-3. **Verification Failure:**  
-   Because the attacker altered the token (e.g., by changing the last character), the signature does not match.  
-   This leads to a verification error, informing the subscriber that the message has been tampered with.
+- **Modify the Token:**  
+  The core tampering occurs by changing the last character of the token:
+  - It determines a new character (`'X'` or `'Y'`) depending on what the original last character is.
+  - By replacing the last character, it specifically alters the **signature** part of the JWT (since the token format is `header.payload.signature` and the signature is at the end).
+  
+- **Result:**  
+  Even a small change like this means that when the subscriber recalculates the expected signature using the header and payload along with the shared secret, the resulting signature will no longer match the tampered token’s signature. As a result, JWT verification fails.
+
+---
+
+### How to Run the MITM Attack Simulation
+
+Follow these steps to run this phase:
+
+1. **Prepare the Subscriber:**  
+   Open the `subscriber.py` script in your favorite editor.  
+   **Modify the Topic:**
+   - **Comment out line 14** where the subscriber is set to listen to the original topic:  
+     ```python
+     # TOPIC = "demo/jwt"
+     ```
+   - **Uncomment line 15** so the subscriber listens to the attacked topic:  
+     ```python
+     TOPIC = "demo/jwt_attacked"
+     ```
+   This configuration ensures that the subscriber will now receive messages republished by the attacker.
+
+2. **Run the Subscriber:**
+   Open a terminal, navigate to the project directory, and run:
+   ```cmd
+   py subscriber.py
+   ```
+
+3. **Run the Attacker:**
+   In a new terminal, run the attacker script:
+   ```cmd
+   py attacker.py
+   ```
+   (Make sure that your repository contains the attacker script; it may be named something like `man_in_the_middle.py` or `attacker.py`.)
+
+4. **Run the Publisher:**
+   In another terminal, run the publisher script:
+   ```cmd
+   py publisher.py
+   ```
+
+---
+
+### What Exactly Happens During the MITM Simulation
+
+- **Publisher:**  
+  The publisher creates a JWT-embedded JSON message (which includes the claims, the header, and the valid signature) and publishes it on the original topic `demo/jwt`.
+
+- **Attacker:**  
+  The attacker subscribes to `demo/jwt` (the original topic). Once a message is received:
+  - The attacker extracts the JWT from the message.
+  - The function `tamper_jwt()` is called, which slightly modifies the token by changing its last character.
+  - The attacker then repackages the message—with the tampered JWT—and publishes it to the new topic `demo/jwt_attacked`.
+
+- **Subscriber:**  
+  The subscriber, now listening on `demo/jwt_attacked`, receives the tampered message. When it attempts to verify the JWT:
+  - It decodes the token and re-calculates the expected signature using the header, payload, and the shared secret.
+  - Because the attacker’s tampering altered the token’s signature (by modifying its last character), the recalculated signature does not match the tampered signature in the token.
+  - Thus, the verification fails. The subscriber can then log or reject the message, which shows that the data has been altered in transit.
+
+This simulation clearly demonstrates that even a minimal change to the JWT causes the signature verification to fail, ensuring that any tampering by an attacker is detected by the subscriber.
 
 ---
 
 ## Additional Notes on JWT Expiration
 
-While this tutorial focuses on verifying data integrity through JWT, you may optionally include an expiration claim (`"exp"`) in your payload to limit the token’s lifetime. However, for transient MQTT messages that are processed immediately, adding an expiration time may be optional.
+### 1. How the Subscriber Detects a Tampered Signature
+
+- **No Memory of the Original Signature Needed:**  
+  The subscriber doesn't store the "original signature" separately. Instead, it recalculates the signature on its own.
+
+- **Recalculation Process:**  
+  When the subscriber receives a JWT, it splits the token into its three parts: the header, the payload, and the signature.  
+  Using the header and payload, along with the pre-shared secret key and the same cryptographic algorithm (for example, HS256), the subscriber recomputes what the signature should be.
+
+- **Signature Comparison:**  
+  The subscriber then compares the recomputed signature with the signature that came with the JWT.  
+  - **If They Match:** This means the data (header and payload) has not been changed.  
+  - **If They Don’t Match:** Any tampering—even a small change in the header or payload—will cause the recomputed signature to differ from the one attached to the token. This difference lets the subscriber know that the message has been altered in transit.
+
+In summary, as long as both sides share the secret key and use the same algorithm, the subscriber can independently verify the integrity of the token without needing to store the original signature.
 
 ---
 
-## Usage Instructions
+### 2. JWT: Not for Encryption, But for Integrity and (Often) Authorization
 
-1. **Set Up Mosquitto Broker:**
-   - Ensure your Docker environment is running.
-   - Execute `docker-compose up` in the project directory to start the Mosquitto container.
-   - Generate the password file using the provided Docker command.
+- **Not Primarily for Encryption:**  
+  JWTs are **not** designed to encrypt the payload. They are usually encoded using Base64URL encoding—which means anyone who intercepts the token can decode it and view the contents.
 
-2. **Run Phase 1 (Normal Operation):**
-   - Open one terminal and run the subscriber:
-     ```cmd
-     py subscriber.py
-     ```
-   - Open another terminal and run the publisher:
-     ```cmd
-     py publisher.py
-     ```
-   - Confirm that the subscriber verifies the JWT and displays the data.
-
-3. **Run Phase 2 (MITM Attack Simulation):**
-   - Open one terminal and start the attacker script:
-     ```cmd
-     py man_in_the_middle.py
-     ```
-   - Modify your subscriber to subscribe to the `demo/jwt_attacked` topic and run it.
-   - Run the publisher as in Phase 1.
-   - Observe that the attacker intercepts and modifies the JWT, and the subscriber’s JWT verification fails, indicating tampered data.
+- **Purpose of JWTs:**  
+  - **Integrity and Authenticity:** The signature in a JWT ensures that the payload has not been tampered with since it was signed.  
+  - **Authorization and Authentication:** JWTs are commonly used to prove that a client is authorized or authenticated, for example, as part of an OAuth flow.
+  
+- **Readable Payload:**  
+  Because the payload is merely Base64 encoded and not encrypted, anyone who obtains the JWT can read the payload. If you need to hide the contents (for confidentiality), you must use encryption (for example, with JSON Web Encryption (JWE)), or use another layer such as TLS/SSL (HTTPS, secure MQTT connections) to secure the data in transit.
 
 ---
+
+### 3.What Is the Expiration Time (exp Claim)?
+
+- **Definition:**  
+  The "exp" claim in a JWT specifies the time (as a Unix timestamp) after which the token should no longer be considered valid.
+
+- **Purpose:**  
+  - **Mitigates Replay Attacks:**  
+    It limits the window in which an intercepted token can be reused by an attacker. Once expired, the token is rejected even if it hasn’t been tampered with.
+  - **Improves Security:**  
+    By enforcing token lifetimes, it helps ensure that if a token is compromised, its usability is limited to a short period.
+  - **Session Management:**  
+    In web applications, it ensures that sessions end after a given period, requiring a new token to be issued.
+
+#### Is Expiration Necessary in Our MQTT Scenario?
+
+In our current JWT-with-MQTT demo:
+
+1. **Primary Focus – Integrity and Authorization:**  
+   - We use JWTs mainly to verify that the data (payload) hasn’t been altered in transit.
+   - The main goal is to detect tampering via signature verification rather than managing long-lived user sessions.
+
+2. **Short-Lived Messages:**  
+   - MQTT messages are typically transient; once they are published and delivered, they do not necessarily persist for long.
+   - If the messages are processed immediately (or within a short time window), a token’s expiration might not be critical for integrity purposes.
+
+3. **Additional Security – Replay Protection:**  
+   - **Optional Usage:**  
+     While the "exp" claim isn’t strictly needed for ensuring message integrity, adding an expiration time can prevent replay attacks. For example, if an attacker were to capture and resend a message later, an expired token would be recognized as invalid.
+   - **Depends on the Use Case:**  
+     - **If your MQTT system uses tokens for authentication/authorization that might be reused over a long period, then adding "exp" is a good idea.**
+     - **If every published message is unique and processed immediately, it might be less critical.**
+
+---
+
+
 
 ## Conclusion
 
@@ -371,4 +421,3 @@ Feel free to fork this project, modify it, or use it as a reference for your own
 
 ---
 
-Feel free to copy, modify, and expand upon this README as necessary for your GitHub repository. Let me know if you need additional details or further adjustments!
