@@ -417,7 +417,6 @@ Feel free to fork this project, modify it, or use it as a reference for your own
 ---
 
 *End of README*
-```
 
 ---
 
