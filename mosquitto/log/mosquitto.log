@@ -1,0 +1,108 @@
+1744644682: mosquitto version 2.0.21 starting
+1744644682: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644682: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644682: Error opening password file "/mosquitto/config/passwd".
+1744644732: mosquitto version 2.0.21 starting
+1744644732: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644732: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644732: Error opening password file "/mosquitto/config/passwd".
+1744644740: mosquitto version 2.0.21 starting
+1744644740: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644740: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644740: Error opening password file "/mosquitto/config/passwd".
+1744644745: mosquitto version 2.0.21 starting
+1744644745: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644745: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644745: Error opening password file "/mosquitto/config/passwd".
+1744644765: mosquitto version 2.0.21 starting
+1744644765: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644765: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644765: Error opening password file "/mosquitto/config/passwd".
+1744644775: mosquitto version 2.0.21 starting
+1744644775: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644775: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644775: Error opening password file "/mosquitto/config/passwd".
+1744644778: mosquitto version 2.0.21 starting
+1744644778: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644778: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644778: Error opening password file "/mosquitto/config/passwd".
+1744644794: mosquitto version 2.0.21 starting
+1744644794: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644794: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644794: Error opening password file "/mosquitto/config/passwd".
+1744644796: mosquitto version 2.0.21 starting
+1744644796: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644796: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644796: Error opening password file "/mosquitto/config/passwd".
+1744644815: mosquitto version 2.0.21 starting
+1744644815: Config loaded from /mosquitto/config/mosquitto.conf.
+1744644815: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744644815: Error opening password file "/mosquitto/config/passwd".
+1744705534: mosquitto version 2.0.21 starting
+1744705534: Config loaded from /mosquitto/config/mosquitto.conf.
+1744705534: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744705534: Error opening password file "/mosquitto/config/passwd".
+1744705608: mosquitto version 2.0.21 starting
+1744705608: Config loaded from /mosquitto/config/mosquitto.conf.
+1744705608: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744705608: Error opening password file "/mosquitto/config/passwd".
+1744706524: mosquitto version 2.0.21 starting
+1744706524: Config loaded from /mosquitto/config/mosquitto.conf.
+1744706524: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744706524: Error opening password file "/mosquitto/config/passwd".
+1744706530: mosquitto version 2.0.21 starting
+1744706530: Config loaded from /mosquitto/config/mosquitto.conf.
+1744706530: Error: Unable to open pwfile "/mosquitto/config/passwd".
+1744706530: Error opening password file "/mosquitto/config/passwd".
+1744706664: mosquitto version 2.0.21 starting
+1744706664: Config loaded from /mosquitto/config/mosquitto.conf.
+1744706664: Opening ipv4 listen socket on port 1883.
+1744706664: Opening ipv6 listen socket on port 1883.
+1744706664: mosquitto version 2.0.21 running
+1744706687: New connection from 172.18.0.1:55304 on port 1883.
+1744706687: New client connected from 172.18.0.1:55304 as Subscriber (p2, c1, k60, u'testuser').
+1744706745: New connection from 172.18.0.1:37486 on port 1883.
+1744706745: New client connected from 172.18.0.1:37486 as Publisher (p2, c1, k60, u'testuser').
+1744706748: Client Publisher disconnected.
+1744706797: Client Subscriber closed its connection.
+1744706803: New connection from 172.18.0.1:39852 on port 1883.
+1744706803: New client connected from 172.18.0.1:39852 as Subscriber (p2, c1, k60, u'testuser').
+1744706811: New connection from 172.18.0.1:39854 on port 1883.
+1744706811: New client connected from 172.18.0.1:39854 as Publisher (p2, c1, k60, u'testuser').
+1744706814: Client Publisher disconnected.
+1744706824: Client Subscriber closed its connection.
+1744706843: New connection from 172.18.0.1:40736 on port 1883.
+1744706843: New client connected from 172.18.0.1:40736 as Subscriber (p2, c1, k60, u'testuser').
+1744706849: New connection from 172.18.0.1:40746 on port 1883.
+1744706849: New client connected from 172.18.0.1:40746 as Publisher (p2, c1, k60, u'testuser').
+1744706852: Client Publisher disconnected.
+1744708326: Client Subscriber closed its connection.
+1744708329: New connection from 172.18.0.1:37592 on port 1883.
+1744708329: New client connected from 172.18.0.1:37592 as Subscriber (p2, c1, k60, u'testuser').
+1744708354: New connection from 172.18.0.1:37060 on port 1883.
+1744708354: New client connected from 172.18.0.1:37060 as MITMAttacker (p2, c1, k60, u'testuser').
+1744708363: New connection from 172.18.0.1:47114 on port 1883.
+1744708363: New client connected from 172.18.0.1:47114 as Publisher (p2, c1, k60, u'testuser').
+1744708367: Client Publisher disconnected.
+1744708465: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744710266: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744711949: Client MITMAttacker has exceeded timeout, disconnecting.
+1744711950: New connection from 172.18.0.1:36732 on port 1883.
+1744711950: New client connected from 172.18.0.1:36732 as MITMAttacker (p2, c1, k60, u'testuser').
+1744712198: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744712198: Client MITMAttacker has exceeded timeout, disconnecting.
+1744712200: New connection from 172.18.0.1:51366 on port 1883.
+1744712200: New client connected from 172.18.0.1:51366 as MITMAttacker (p2, c1, k60, u'testuser').
+1744712569: Client Subscriber has exceeded timeout, disconnecting.
+1744712569: Client MITMAttacker has exceeded timeout, disconnecting.
+1744712570: New connection from 172.18.0.1:58676 on port 1883.
+1744712570: New client connected from 172.18.0.1:58676 as MITMAttacker (p2, c1, k60, u'testuser').
+1744712570: New connection from 172.18.0.1:58678 on port 1883.
+1744712570: New client connected from 172.18.0.1:58678 as Subscriber (p2, c1, k60, u'testuser').
+1744713999: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744715800: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744717601: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744719402: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744721922: Saving in-memory database to /mosquitto/data//mosquitto.db.
+1744722155: Client MITMAttacker closed its connection.
+1744722155: Client Subscriber closed its connection.
