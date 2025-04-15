@@ -247,7 +247,7 @@ These steps will start the publisher and subscriber, demonstrating how a JWT is 
 
 In Phase 2, we simulate a man-in-the-middle (MITM) attack where an attacker intercepts the message, alters the JWT to create a new token (or remove it), and repackages the message. This scenario demonstrates that when the subscriber attempts to verify the tampered JWT, the verification fails, indicating that the data has been altered.
 
-### Attacker Code: Tampering with the JWT
+### Attacker : Tampering with the JWT
 In this phase, we simulate an attack scenario where an attacker intercepts the published message, modifies the JWT token, and repackages the message. When the subscriber, expecting a valid JWT, attempts to verify the tampered token, the verification fails—indicating that the data has been altered.  
 
 - The **attacker** script acts as an intermediary:
@@ -255,9 +255,7 @@ In this phase, we simulate an attack scenario where an attacker intercepts the p
   - On receiving a message, it extracts the JWT and modifies it (e.g., changing one character in the token).
   - It republishes the modified message to a different topic (`demo/jwt_attacked`).
 
-### Attacker Code: Tampering with the JWT
-
-The attacker script acts as an intermediary. One of the key functions in this script is for tampering with the JWT. In our repository, we have the following function:
+**One of the key functions in this script is for tampering with the JWT. In our repository, we have the following function:**
 
 ```python
 def tamper_jwt(token):
