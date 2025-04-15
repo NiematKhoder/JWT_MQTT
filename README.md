@@ -11,7 +11,7 @@
   - [Mosquitto Broker Setup with Docker](#mosquitto-broker-setup-with-docker)
   - [Creating the Password File](#creating-the-password-file)
 - [Phase 1: Normal Operation (Untampered Data)](#phase-1-normal-operation-untampered-data)
-  - [Publisher: Creating and Sending JWT](#publisher-creating-and-sending-jwt)
+  - [Publisher: Creating and Sending JWT](#publisher-code-creating-and-sending-jwt)
   - [Subscriber: Verifying the JWT](#subscriber-verifying-the-jwt)
 - [Phase 2: MITM Attack Simulation](#phase-2-mitm-attack-simulation)
   - [Attacker: Tampering with the JWT](#attacker-tampering-with-the-jwt)
@@ -136,6 +136,15 @@ Since Mosquitto is running in Docker, we can generate the password file using th
 
 3. **Verify the Password File:**
    - Check in your local directory (e.g., `./mosquitto/config/passwd`) that the file is created.
+
+4. **Create and Start the Container:**
+   - Finally, start your Mosquitto container in detached mode by running:
+     
+     ```cmd
+     docker-compose up -d
+     ```
+
+This command will create and start the container in the background.
 
 ---
 
